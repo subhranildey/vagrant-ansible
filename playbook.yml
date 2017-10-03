@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    
+
+    - name:  Ensure sdey user exists
+      user: 
+       name: sdey 
+       password: $6$QCmNVoH2xHr0.WoA$JALsrpqN.XvuazAh7Mv10eIAZb7CvL6w/LiOAxZpiumlKHpdeY6JRWP6aKlKmHV//c.AOrlm0hsoBthZhf1Ui1
+       shell: /bin/bash
+       createhome: yes
+       state: present 
+       comment: Subhranil Dey
+
+    - name: Ensure sdey user is sudoer with no password required
+      lineinfile:
+       dest: /etc/sudoers
+       state: present
+       regexp: '^sdey ALL\='
+       line: 'sdey ALL=(ALL) NOPASSWD:ALL'
+       validate: 'visudo -cf %s'
+      
+    - name: Allow ssh password authentication for sdey
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        state=present
+        backrefs=yes
+        regexp='^PasswordAuthentication\sno$'
+        line='PasswordAuthentication yes'
