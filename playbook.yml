@@ -53,4 +53,4 @@
       git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{user}}/.oh-my-zsh
 
     - name: Deploy .zshrc
-      template: src=zshrc.j2 dest=/home/{{user}}/.zshrc
+      template: src=zshrc-template.j2 dest=/home/{{user}}/.zshrc
