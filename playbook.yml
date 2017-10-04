@@ -1,14 +1,9 @@
 ---
 - hosts: all
-  user: sdey
   become: true
 
   vars:
     user: sdey
-    pbname: $inventory_hostname
-    distro: ${ansible_distribution}
-    pkg_mgr: ${ansible_pkg_mgr}
-    zsh_theme: steeef
 
   tasks:
     - name: Update packages
@@ -28,7 +23,7 @@
        
     - name:  Ensure sdey user exists
       user: 
-       name: sdey 
+       name: '{{user}}'
        password: $6$QCmNVoH2xHr0.WoA$JALsrpqN.XvuazAh7Mv10eIAZb7CvL6w/LiOAxZpiumlKHpdeY6JRWP6aKlKmHV//c.AOrlm0hsoBthZhf1Ui1
        shell: /bin/bash
        createhome: yes
@@ -39,8 +34,8 @@
       lineinfile:
        dest: /etc/sudoers
        state: present
-       regexp: '^sdey ALL\='
-       line: 'sdey ALL=(ALL) NOPASSWD:ALL'
+       regexp: '^{{user}} ALL\='
+       line: '{{user}} ALL=(ALL) NOPASSWD:ALL'
        validate: 'visudo -cf %s'
       
     - name: Allow ssh password authentication for sdey
@@ -52,6 +47,10 @@
         line: 'PasswordAuthentication yes'
 
     - name: Restart sshd
-      service:
-        name: 'ssh'
-        state: 'restarted'
+      service: name=ssh state=restarted
+      
+    - name: Clone oh-my-zsh repo
+      git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{user}}/.oh-my-zsh
+
+    - name: Deploy .zshrc
+      template: src=zshrc.j2 dest=/home/{{user}}/.zshrc
