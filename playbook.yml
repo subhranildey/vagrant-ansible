@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  user: sdey
   become: true
 
   vars:
@@ -25,7 +26,7 @@
       user: 
        name: '{{user}}'
        password: $6$QCmNVoH2xHr0.WoA$JALsrpqN.XvuazAh7Mv10eIAZb7CvL6w/LiOAxZpiumlKHpdeY6JRWP6aKlKmHV//c.AOrlm0hsoBthZhf1Ui1
-       shell: /bin/bash
+       shell: /bin/zsh
        createhome: yes
        state: present 
        comment: Subhranil Dey
@@ -52,5 +53,13 @@
     - name: Clone oh-my-zsh repo
       git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{user}}/.oh-my-zsh
 
+    - name: Configure zsh syntax highlighting
+      git: repo=https://github.com/zsh-users/zsh-syntax-highlighting.git dest=/usr/local/share/zsh-syntax-highlighting
+
     - name: Deploy .zshrc
-      template: src=zshrc-template.j2 dest=/home/{{user}}/.zshrc
+      template: src=zshrc-template.j2 dest=/home/{{user}}/.zshrc owner='{{user}}' group='{{user}}'
+
+    - name: source bashrc file
+      shell: "{{ item }}"
+      with_items:
+         - runuser -l  sdey -c 'source /home/{{user}}/.zshrc'
