@@ -1,9 +1,31 @@
 ---
 - hosts: all
+  user: sdey
   become: true
-  tasks:
-    
 
+  vars:
+    user: sdey
+    pbname: $inventory_hostname
+    distro: ${ansible_distribution}
+    pkg_mgr: ${ansible_pkg_mgr}
+    zsh_theme: steeef
+
+  tasks:
+    - name: Update packages
+      apt:
+       update_cache: yes
+    
+    - name: Install list of packages
+      apt: name={{item}} state=installed
+      with_items:
+       - git
+       - vim
+       - wget
+       - tree
+       - build-essential
+       - zsh
+       - tig
+       
     - name:  Ensure sdey user exists
       user: 
        name: sdey 
@@ -23,8 +45,13 @@
       
     - name: Allow ssh password authentication for sdey
       lineinfile:
-        dest=/etc/ssh/sshd_config
-        state=present
-        backrefs=yes
-        regexp='^PasswordAuthentication\sno$'
-        line='PasswordAuthentication yes'
+        dest: /etc/ssh/sshd_config
+        state: present
+        backrefs: yes
+        regexp: '^PasswordAuthentication\sno$'
+        line: 'PasswordAuthentication yes'
+
+    - name: Restart sshd
+      service:
+        name: 'ssh'
+        state: 'restarted'
