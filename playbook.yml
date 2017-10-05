@@ -21,6 +21,7 @@
        - build-essential
        - zsh
        - tig
+       - neofetch
        
     - name:  Ensure sdey user exists
       user: 
@@ -59,7 +60,19 @@
     - name: Deploy .zshrc
       template: src=zshrc-template.j2 dest=/home/{{user}}/.zshrc owner='{{user}}' group='{{user}}'
 
+    - name: seting lamda-mod-zsh-theme
+      template: src=lambda-mod.zsh-theme.j2 dest=/home/{{user}}/.oh-my-zsh/themes/lambda-mod.zsh-theme owner='{{user}}' group='{{user}}'
+
     - name: source bashrc file
       shell: "{{ item }}"
       with_items:
          - runuser -l  sdey -c 'source /home/{{user}}/.zshrc'
+   
+    - name: Change file permission
+      file:
+        dest: /home/{{user}}
+        owner: '{{user}}'
+        group: '{{user}}'
+        recurse: yes
+
+
