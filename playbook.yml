@@ -7,11 +7,11 @@
     user: sdey
 
   tasks:
-    - name: Update packages
+    - name: 1. Update packages
       apt:
        update_cache: yes
     
-    - name: Install list of packages
+    - name: 2. Install list of packages
       apt: name={{item}} state=installed
       with_items:
        - git
@@ -22,8 +22,9 @@
        - zsh
        - tig
        - neofetch
+       - nginx
        
-    - name:  Ensure sdey user exists
+    - name:  3. Ensure sdey user exists
       user: 
        name: '{{user}}'
        password: $6$QCmNVoH2xHr0.WoA$JALsrpqN.XvuazAh7Mv10eIAZb7CvL6w/LiOAxZpiumlKHpdeY6JRWP6aKlKmHV//c.AOrlm0hsoBthZhf1Ui1
@@ -32,15 +33,22 @@
        state: present 
        comment: Subhranil Dey
 
-    - name: Ensure sdey user is sudoer with no password required
+    - name: 4. Ensure sdey user is sudoer with no password required
       lineinfile:
        dest: /etc/sudoers
        state: present
        regexp: '^{{user}} ALL\='
        line: '{{user}} ALL=(ALL) NOPASSWD:ALL'
        validate: 'visudo -cf %s'
-      
-    - name: Allow ssh password authentication for sdey
+
+    - name: 5. synchronize .ssh   
+      synchronize:
+       src: .ssh
+       dest: /home/{{user}}/
+       compress: yes 
+       recursive: yes
+
+    - name: 6. Allow ssh password authentication for sdey
       lineinfile:
         dest: /etc/ssh/sshd_config
         state: present
@@ -48,31 +56,31 @@
         regexp: '^PasswordAuthentication\sno$'
         line: 'PasswordAuthentication yes'
 
-    - name: Restart sshd
+    - name: 7. Restart sshd
       service: name=ssh state=restarted
       
-    - name: Clone oh-my-zsh repo
+    - name: 8. Clone oh-my-zsh repo
       git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{user}}/.oh-my-zsh
 
-    - name: Configure zsh syntax highlighting
+    - name: 9. Configure zsh syntax highlighting
       git: repo=https://github.com/zsh-users/zsh-syntax-highlighting.git dest=/usr/local/share/zsh-syntax-highlighting
 
-    - name: Deploy .zshrc
+    - name: 10. Deploy .zshrc
       template: src=zshrc-template.j2 dest=/home/{{user}}/.zshrc owner='{{user}}' group='{{user}}'
 
-    - name: seting lamda-mod-zsh-theme
+    - name: 11. seting lamda-mod-zsh-theme
       template: src=lambda-mod.zsh-theme.j2 dest=/home/{{user}}/.oh-my-zsh/themes/lambda-mod.zsh-theme owner='{{user}}' group='{{user}}'
 
-    - name: source bashrc file
+    - name: 12. source bashrc file
       shell: "{{ item }}"
       with_items:
          - runuser -l  sdey -c 'source /home/{{user}}/.zshrc'
-   
-    - name: Change file permission
+
+    - name: 13. Change file permission
       file:
         dest: /home/{{user}}
         owner: '{{user}}'
         group: '{{user}}'
         recurse: yes
 
-
+     
