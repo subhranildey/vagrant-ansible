@@ -23,6 +23,8 @@
        - tig
        - neofetch
        - nginx
+       - postgresql-client
+       - mysql-client
        
     - name:  3. Ensure sdey user exists
       user: 
@@ -62,6 +64,9 @@
     - name: 8. Clone oh-my-zsh repo
       git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{user}}/.oh-my-zsh
 
+    - name: 14. vimrc
+      git: repo=https://github.com/amix/vimrc.git dest=/home/{{user}}/.vim_runtime
+    
     - name: 9. Configure zsh syntax highlighting
       git: repo=https://github.com/zsh-users/zsh-syntax-highlighting.git dest=/usr/local/share/zsh-syntax-highlighting
 
@@ -75,6 +80,7 @@
       shell: "{{ item }}"
       with_items:
          - runuser -l  sdey -c 'source /home/{{user}}/.zshrc'
+         - runuser -l  sdey -c 'sh /home/{{user}}/.vim_runtime/install_awesome_vimrc.sh'
 
     - name: 13. Change file permission
       file:
@@ -82,5 +88,3 @@
         owner: '{{user}}'
         group: '{{user}}'
         recurse: yes
-
-     
