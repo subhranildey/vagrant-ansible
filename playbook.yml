@@ -45,8 +45,8 @@
 
     - name: 5. synchronize .ssh   
       synchronize:
-       src: .ssh
-       dest: /home/{{user}}/
+       src: ~/Pemfiles/
+       dest: /home/{{user}}/.ssh/
        compress: yes 
        recursive: yes
 
