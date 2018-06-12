@@ -22,9 +22,9 @@
        - zsh
        - tig
        - neofetch
-       - nginx
        - postgresql-client
        - mysql-client
+       - python-pip
        
     - name:  3. Ensure sdey user exists
       user: 
