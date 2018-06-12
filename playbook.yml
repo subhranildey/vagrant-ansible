@@ -25,6 +25,7 @@
        - postgresql-client
        - mysql-client
        - python-pip
+       - parted
        
     - name:  3. Ensure sdey user exists
       user: 
