@@ -13,7 +13,7 @@
     
     - name: 2. Install list of packages
       apt:
-        name: ['git', 'vim', 'wget', 'tree', 'build-essential', 'zsh', 'tig', 'neofetch', 'postgresql-client', 'python-pip', 'parted', 'apt-transport-https', 'ca-certificates', 'curl', 'gnupg2', 'software-properties-common']
+        name: ['git', 'vim', 'wget', 'tree', 'build-essential', 'zsh', 'tig', 'neofetch', 'postgresql-client', 'python-pip', 'parted', 'apt-transport-https', 'ca-certificates', 'curl', 'gnupg2', 'software-properties-common', 'net-tools']
        
     - name:  3. Ensure sdey user exists
       user: 
