@@ -7,25 +7,13 @@
     user: sdey
 
   tasks:
-    - name: 1. Update packages
+    - name: 1. Update all packages to the latest version
       apt:
        update_cache: yes
     
     - name: 2. Install list of packages
-      apt: name={{item}} state=installed
-      with_items:
-       - git
-       - vim
-       - wget
-       - tree
-       - build-essential
-       - zsh
-       - tig
-       - neofetch
-       - postgresql-client
-       - mysql-client
-       - python-pip
-       - parted
+      apt:
+        name: ['git', 'vim', 'wget', 'tree', 'build-essential', 'zsh', 'tig', 'neofetch', 'postgresql-client', 'python-pip', 'parted', 'apt-transport-https', 'ca-certificates', 'curl', 'gnupg2', 'software-properties-common']
        
     - name:  3. Ensure sdey user exists
       user: 
@@ -55,9 +43,15 @@
       lineinfile:
         dest: /etc/ssh/sshd_config
         state: present
-        backrefs: yes
+  #      backrefs: yes
         regexp: '^PasswordAuthentication\sno$'
         line: 'PasswordAuthentication yes'
+
+    - name: 77 Add groups for standard users
+      group:
+        name: "vagrant"
+        gid: "1002"
+        state: present
 
     - name: 7. Restart sshd
       service: name=ssh state=restarted
@@ -89,3 +83,46 @@
         owner: '{{user}}'
         group: '{{user}}'
         recurse: yes
+
+    - name: 14. Add Apt signing key from official docker repo
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: 15. Add docker official repository 
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+        state: present
+
+    - name: 16.Index new repo into the cache
+      become: yes
+      apt:
+        name: "*"
+        state: latest
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: 17. actually install docker
+      apt:
+        name: "docker-ce"
+        state: latest
+      
+    - name: Ensure docker-compose is installed and available
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.24.1/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}
+        dest: /usr/local/bin/docker-compose
+        mode: 'a+x,g+x'
+        
+    - name: 19. Remove useless packages from the cache
+      apt:
+        autoclean: yes
+
+    - name: 20. Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
+    - name: 21. Adding existing user sdey to group docker
+      user:
+        name: '{{user}}'
+        groups: docker, vagrant
+        append: yes
